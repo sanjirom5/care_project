@@ -38,10 +38,6 @@ def print_rows(rows, limit=20):
 def main():
     print("== Part 2 script started ==")
 
-    # ----------------------------------------------------
-    # 3. UPDATE OPERATIONS
-    # ----------------------------------------------------
-
     print("\n-- 3.1 Update Arman's phone number --")
     run("""
         UPDATE app_user
@@ -61,10 +57,6 @@ def main():
     """)
     rows = run("SELECT caregiver_user_id, hourly_rate FROM caregiver ORDER BY caregiver_user_id;", fetch=True)
     print_rows(rows)
-
-    # ----------------------------------------------------
-    # 4. DELETE OPERATIONS
-    # ----------------------------------------------------
 
     print("\n-- 4.1 Delete jobs posted by Amina Aminova --")
     run("""
@@ -104,10 +96,7 @@ def main():
     rows = run("SELECT member_user_id, house_rules FROM member ORDER BY member_user_id;", fetch=True)
     print_rows(rows)
 
-    # ----------------------------------------------------
-    # 5. SIMPLE QUERIES
-    # ----------------------------------------------------
-
+    # simple queries
     print("\n-- 5.1 Caregiver + Member names for accepted appointments --")
     rows = run("""
         SELECT a.appointment_id,
@@ -151,10 +140,7 @@ def main():
     """, fetch=True)
     print_rows(rows)
 
-    # ----------------------------------------------------
-    # 6. COMPLEX QUERIES
-    # ----------------------------------------------------
-
+    # complex queries
     print("\n-- 6.1 Count applicants per job --")
     rows = run("""
         SELECT j.job_id, j.member_user_id,
@@ -204,10 +190,6 @@ def main():
     """, fetch=True)
     print_rows(rows)
 
-    # ----------------------------------------------------
-    # 7. DERIVED ATTRIBUTE
-    # ----------------------------------------------------
-
     print("\n-- 7. Total cost for each caregiver (accepted appointments) --")
     rows = run("""
         SELECT c.caregiver_user_id, au.given_name,
@@ -220,10 +202,6 @@ def main():
         ORDER BY total_payment DESC;
     """, fetch=True)
     print_rows(rows)
-
-    # ----------------------------------------------------
-    # 8. VIEW OPERATION
-    # ----------------------------------------------------
 
     print("\n-- 8. Create VIEW view_job_applications_applicants --")
     run("DROP VIEW IF EXISTS view_job_applications_applicants;")

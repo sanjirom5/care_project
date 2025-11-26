@@ -1,6 +1,4 @@
--- -----------------------------
 -- Insert mock users (20 users)
--- -----------------------------
 INSERT INTO app_user (email, given_name, surname, city, phone_number, profile_description, password) VALUES
 ('arman@example.com', 'Arman', 'Armanov', 'Astana', '+77012345678', 'Friendly and responsible.', '123'),
 ('amina@example.com', 'Amina', 'Aminova', 'Almaty', '+77019876543', 'Calm and patient.', '123'),
@@ -25,9 +23,7 @@ INSERT INTO app_user (email, given_name, surname, city, phone_number, profile_de
 
 
 
--- ------------------------------------------------------
--- Insert caregivers (updated realistic KZT hourly rates)
--- ------------------------------------------------------
+-- Insert caregivers
 INSERT INTO caregiver (caregiver_user_id, gender, caregiving_type, hourly_rate) VALUES
 (1, 'male', 'babysitter', 3500),
 (3, 'female', 'babysitter', 3000),
@@ -42,9 +38,7 @@ INSERT INTO caregiver (caregiver_user_id, gender, caregiving_type, hourly_rate) 
 
 
 
--- --------------------------------
 -- Insert members (needs caregiver)
--- --------------------------------
 INSERT INTO member (member_user_id, house_rules, dependent_description) VALUES
 (2, 'Quiet after 9 PM, hygiene important.', 'Elderly grandmother, needs daily check-ins.'),
 (5, 'No smoking, clean kitchen.', '5-year-old daughter who likes painting.'),
@@ -59,9 +53,7 @@ INSERT INTO member (member_user_id, house_rules, dependent_description) VALUES
 
 
 
--- -----------------------
 -- Insert addresses
--- -----------------------
 INSERT INTO address (member_user_id, house_number, street, town) VALUES
 (2, '10', 'Kabanbay Batyr', 'Almaty'),
 (5, '21', 'Turan', 'Astana'),
@@ -76,9 +68,7 @@ INSERT INTO address (member_user_id, house_number, street, town) VALUES
 
 
 
--- -----------------------
 -- Insert jobs
--- -----------------------
 INSERT INTO job (job_id, member_user_id, required_caregiving_type, other_requirements, date_posted) VALUES
 (1, 2, 'elderly', 'Must be patient and attentive.', '2025-11-01'),
 (2, 5, 'babysitter', 'Night shifts, feeding experience.', '2025-11-02'),
@@ -93,9 +83,7 @@ INSERT INTO job (job_id, member_user_id, required_caregiving_type, other_require
 
 
 
--- -----------------------
 -- Job applications
--- -----------------------
 INSERT INTO job_application (caregiver_user_id, job_id, date_applied) VALUES
 (1, 1, '2025-11-02'),
 (3, 2, '2025-11-03'),
@@ -110,9 +98,7 @@ INSERT INTO job_application (caregiver_user_id, job_id, date_applied) VALUES
 
 
 
--- -----------------------
 -- Appointments
--- -----------------------
 INSERT INTO appointment (appointment_id, caregiver_user_id, member_user_id, appointment_date, appointment_time, work_hours, status) VALUES
 (1, 1, 2, '2025-11-14', '09:00', 4, 'accepted'),
 (2, 3, 5, '2025-11-15', '10:30', 6, 'accepted'),

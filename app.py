@@ -331,12 +331,9 @@ def signup_caregiver():
         profile_description = request.form.get("profile_description") or None
         password = request.form.get("password") or ""
 
-        # optional uploaded file (we will NOT write it to caregiver table to avoid unknown-column errors)
         uploaded_photo = request.files.get("photo")
         photo_filename = uploaded_photo.filename if uploaded_photo and uploaded_photo.filename else None
-        # NOTE: if your DB actually has a photo column named exactly (photo or photo_filename),
-        # you can add it to the caregiver INSERT below. For safety we omit it.
-
+        
         # validate email
         if not email:
             error = "Email is required."
@@ -386,8 +383,6 @@ def signup_caregiver():
         hourly_rate_kzt = norm_rate_to_kzt(hourly_rate_raw)
 
         # Insert caregiver row.
-        # NOTE: we intentionally insert only safe columns we know exist in most schemas:
-        # caregiver_user_id, gender, caregiving_type, hourly_rate
         try:
             session.execute(text("""
                 INSERT INTO caregiver (caregiver_user_id, gender, caregiving_type, hourly_rate)
@@ -401,15 +396,11 @@ def signup_caregiver():
             session.commit()
         except IntegrityError:
             session.rollback()
-            # if caregiver insert fails for FK/constraint reasons, remove created user to avoid orphan (optional)
-            # session.execute(text("DELETE FROM app_user WHERE user_id = :uid"), {"uid": new_user_id})
-            # session.commit()
             error = "Failed to create caregiver profile due to database constraint. Check schema."
             return render_template("signup_caregiver.html", error=error, form=request.form)
 
         return redirect("/users")
 
-    # GET
     return render_template("signup_caregiver.html")
 
 
@@ -490,9 +481,6 @@ def signup_member():
             session.commit()
         except IntegrityError:
             session.rollback()
-            # in case of error, optionally cleanup app_user row (or keep and inform admin)
-            # session.execute(text("DELETE FROM app_user WHERE user_id = :uid"), {"uid": new_user_id})
-            # session.commit()
             error = "Failed to create member profile due to database constraint. Check schema."
             return render_template("signup_member.html", error=error, form=request.form)
 
@@ -501,9 +489,7 @@ def signup_member():
     # GET
     return render_template("signup_member.html")
 
-# ---------------- Minimal CRUD for remaining tables ----------------
-
-# -------- CAREGIVER CRUD --------
+#  CAREGIVER CRUD 
 @app.route("/caregivers")
 def caregivers():
     session = Session()
@@ -554,11 +540,10 @@ def delete_caregiver(uid):
     return redirect("/caregivers")
 
 
-# -------- MEMBER CRUD --------
+#  MEMBER CRUD 
 @app.route("/members")
 def members():
     session = Session()
-    # fetch member rows along with optional address and basic user info
     rows = session.execute(text("""
         SELECT
             m.member_user_id,
@@ -577,31 +562,24 @@ def members():
         ORDER BY m.member_user_id
     """)).fetchall()
 
-    # convert rows to simple objects for Jinja
     class Obj: pass
 
     members = []
     for r in rows:
         o = Obj()
-        # prefer named-access; fallback to positional if needed
         try:
             keys = r.keys()
             o.id = r['member_user_id']
-            # build readable address from parts (skip empty parts)
             parts = [r['house_number'], r['street'], r['town']]
             o.address = ", ".join([str(p) for p in parts if p])
             o.dependent = r['dependent_description'] or ""
             o.house_rules = r['house_rules'] or ""
-            # optional: name/email/city (you removed them from table view earlier,
-            # but we keep them in case you want to show later)
             given = r.get('given_name') or ""
             surname = r.get('surname') or ""
             o.name = (given + " " + surname).strip()
             o.email = r.get('email') or ""
             o.city = r.get('city') or ""
         except Exception:
-            # fallback for DB drivers that return tuples
-            # map by position (as selected above)
             o.id = r[0]
             o.dependent = r[1] or ""
             o.house_rules = r[2] or ""
@@ -625,7 +603,7 @@ def create_member():
         """), {"uid": request.form.get("member_user_id"),
                "hr": request.form.get("house_rules"),
                "dd": request.form.get("dependent_description")})
-        # optionally create address
+        
         hn = request.form.get("house_number"); st = request.form.get("street"); tn = request.form.get("town")
         if hn or st or tn:
             session.execute(text("""
@@ -677,7 +655,7 @@ def delete_member(uid):
     return redirect("/members")
 
 
-# -------- ADDRESS CRUD (optional separate) --------
+#  ADDRESS CRUD
 @app.route("/addresses")
 def addresses():
     session = Session()
@@ -705,7 +683,7 @@ def delete_address(aid):
     return redirect("/addresses")
 
 
-# -------- JOB CRUD --------
+#  JOB CRUD 
 @app.route("/jobs")
 def jobs():
     session = Session()
@@ -755,7 +733,7 @@ def delete_job(jid):
     return redirect("/jobs")
 
 
-# -------- JOB APPLICATION CRUD --------
+#  JOB APPLICATION CRUD 
 @app.route("/applications")
 def applications():
     session = Session()
@@ -790,7 +768,7 @@ def delete_application(cid, jid):
     return redirect("/applications")
 
 
-# -------- APPOINTMENT CRUD --------
+#  APPOINTMENT CRUD 
 @app.route("/appointments")
 def appointments():
     session = Session()
@@ -830,8 +808,6 @@ def delete_appointment(aid):
     session.execute(text("DELETE FROM appointment WHERE appointment_id=:aid"), {"aid": aid})
     session.commit()
     return redirect("/appointments")
-
-# ---------------- end CRUD block ----------------
 
 if __name__ == "__main__":
     app.run(debug=True)

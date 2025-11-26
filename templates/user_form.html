@@ -32,7 +32,6 @@
 
   <br>
 
-  <!-- MEMBER SECTION: only show if role includes 'Member' OR user has member checked -->
   {% if member %}
   <div id="member_section" style="border:1px solid #cfe8ff; padding:12px; max-width:700px;">
     <h3>Member information</h3>
@@ -92,7 +91,6 @@
 </form>
 
 <script>
-  // Optional: toggle display client-side when checkboxes change (UI convenience)
   const memberCheckbox = document.querySelector('input[name="is_member"]');
   const caregiverCheckbox = document.querySelector('input[name="is_caregiver"]');
 </script>
