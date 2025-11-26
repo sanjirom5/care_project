@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Jobs</h2>
+<a href="/jobs/create">Create job</a>
+<table border="1" cellpadding="6">
+<tr><th>ID</th><th>Member</th><th>Type</th><th>Reqs</th><th>Date posted</th><th>Actions</th></tr>
+{% for j in jobs %}
+<tr>
+  <td>{{ j.job_id }}</td>
+  <td>{{ j.member_name }}</td>
+  <td>{{ j.required_caregiving_type }}</td>
+  <td>{{ j.other_requirements }}</td>
+  <td>{{ j.date_posted }}</td>
+  <td><a href="/jobs/edit/{{ j.job_id }}">Edit</a> | <a href="/jobs/delete/{{ j.job_id }}" onclick="return confirm('Delete?')">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

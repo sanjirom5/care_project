@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>{{ "Edit User" if edit else "Create User" }}</h2>
+
+<form method="POST" enctype="multipart/form-data">
+
+  <label>Email:</label><br>
+  <input name="email" type="email" value="{{ user.email if user else '' }}" required><br><br>
+
+  <label>First name:</label><br>
+  <input name="given_name" value="{{ user.given_name if user else '' }}" required><br><br>
+
+  <label>Last name:</label><br>
+  <input name="surname" value="{{ user.surname if user else '' }}" required><br><br>
+
+  <label>City:</label><br>
+  <input name="city" value="{{ user.city if user else '' }}" required><br><br>
+
+  <label>Phone:</label><br>
+  <input name="phone_number" value="{{ user.phone_number if user else '' }}"><br><br>
+
+  <label>Personal information / Biography:</label><br>
+  <textarea name="profile_description" rows="4" cols="60">{{ user.profile_description if user else '' }}</textarea><br><br>
+
+  <label>Password:</label><br>
+  <input name="password" type="password" value="{{ user.password if user else '' }}"><br><br>
+
+  <div style="padding:10px; border:1px solid #ccc; margin-bottom:20px; margin-top:20px; max-width:400px;">
+    <strong>Role (current):</strong> {{ role }}
+  </div>
+
+  <br>
+
+  <!-- MEMBER SECTION: only show if role includes 'Member' OR user has member checked -->
+  {% if member %}
+  <div id="member_section" style="border:1px solid #cfe8ff; padding:12px; max-width:700px;">
+    <h3>Member information</h3>
+    <label>House rules:</label><br>
+    <textarea name="house_rules" rows="4" cols="60">{{ member.house_rules if member else '' }}</textarea><br><br>
+
+    <label>Dependent description (who needs care):</label><br>
+    <textarea name="dependent_description" rows="4" cols="60">{{ member.dependent_description if member else '' }}</textarea><br><br>
+
+    <fieldset style="max-width:600px;">
+      <legend>Address</legend>
+      <label>House number:</label><br>
+      <input name="house_number" value="{{ address.house_number if address else '' }}"><br><br>
+
+      <label>Street:</label><br>
+      <input name="street" value="{{ address.street if address else '' }}"><br><br>
+
+      <label>Town / City (address):</label><br>
+      <input name="town" value="{{ address.town if address else '' }}"><br><br>
+    </fieldset>
+  </div>
+  <br>
+  {% endif %}
+
+  <!-- CAREGIVER SECTION: only show if caregiver exists -->
+  {% if caregiver %}
+  <div id="caregiver_section" style="border:1px solid #cfe8ff; padding:12px; max-width:700px;">
+    <h3>Caregiver information</h3>
+
+    <label>Type of caregiving:</label><br>
+    <select name="caregiving_type">
+      <option value="" {% if not caregiver.caregiving_type %}selected{% endif %}>--</option>
+      <option value="babysitter" {% if caregiver.caregiving_type=='babysitter' %}selected{% endif %}>Babysitter</option>
+      <option value="elderly" {% if caregiver.caregiving_type=='elderly' %}selected{% endif %}>Caregiver for elderly</option>
+      <option value="playmate" {% if caregiver.caregiving_type=='playmate' %}selected{% endif %}>Playmate for children</option>
+    </select><br><br>
+
+    <label>Gender:</label><br>
+    <select name="gender">
+      <option value="" {% if not caregiver.gender %}selected{% endif %}>--</option>
+      <option value="male" {% if caregiver.gender=='male' %}selected{% endif %}>Male</option>
+      <option value="female" {% if caregiver.gender=='female' %}selected{% endif %}>Female</option>
+      <option value="other" {% if caregiver.gender=='other' %}selected{% endif %}>Other</option>
+    </select><br><br>
+
+    <label>Price per hour:</label><br>
+    <input name="hourly_rate" type="number" step="0.01" value="{{ caregiver.hourly_rate if caregiver else '' }}"><br><br>
+
+    <label>Biography / Personal info (caregiver):</label><br>
+    <textarea name="caregiver_description" rows="3" cols="60">{{ caregiver.profile_description if caregiver else '' }}</textarea><br><br>
+  </div>
+  <br>
+  {% endif %}
+
+  <button type="submit">Update</button>
+  &nbsp;<a href="/users">Cancel</a>
+</form>
+
+<script>
+  // Optional: toggle display client-side when checkboxes change (UI convenience)
+  const memberCheckbox = document.querySelector('input[name="is_member"]');
+  const caregiverCheckbox = document.querySelector('input[name="is_caregiver"]');
+</script>
+
+{% endblock %}

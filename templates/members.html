@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Members</h2>
+<a href="/users">Back to users</a>
+<table border="1" cellpadding="6">
+  <tr>
+    <th>ID</th>
+    <th>Address</th>
+    <th>Dependent</th>
+    <th>House rules</th>
+    <th>Actions</th>
+  </tr>
+  {% for m in members %}
+  <tr>
+    <td>{{ m.id }}</td>
+    <td>{{ m.address }}</td>
+    <td>{{ m.dependent }}</td>
+    <td>{{ m.house_rules }}</td>
+    <td><a href="/members/edit/{{ m.id }}">Edit</a> | <a href="/members/delete/{{ m.id }}" onclick="return confirm('Delete?')">Delete</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

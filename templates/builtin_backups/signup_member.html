@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Sign up — Family member (seeking a caregiver)</h2>
+
+  <form method="POST">
+
+    <!-- a. Name -->
+    First name:<br>
+    <input name="given_name" required><br><br>
+
+    <!-- b. Surname -->
+    Last name:<br>
+    <input name="surname" required><br><br>
+
+    <!-- c. Mail address -->
+    Email:<br>
+    <input name="email" type="email" required><br><br>
+
+    <!-- d. Phone number -->
+    Phone number:<br>
+    <input name="phone_number" required><br><br>
+
+    <!-- e. Password -->
+    Password:<br>
+    <input name="password" type="password" required><br><br>
+
+    <!-- f. City -->
+    City:<br>
+    <input name="city" required><br><br>
+
+    <!-- g. Address -->
+    <fieldset style="max-width:600px;">
+      <legend>Address</legend>
+      House number:<br>
+      <input name="house_number"><br><br>
+      Street:<br>
+      <input name="street"><br><br>
+      Town / City (address):<br>
+      <input name="town"><br><br>
+    </fieldset>
+    <br>
+
+    <!-- h. Information about the person in need of nursing -->
+    Dependent description (who needs care):<br>
+    <textarea name="dependent_description" rows="4" cols="60" placeholder="e.g., I have a 5-year-old son who likes painting…"></textarea>
+    <br><br>
+
+    <!-- i. House rules -->
+    House rules (what caregiver must follow):<br>
+    <textarea name="house_rules" rows="4" cols="60" placeholder="e.g., No smoking, follow hygiene rules…"></textarea>
+    <br><br>
+
+    <button type="submit">Create Family Member Account</button>
+  </form>
+{% endblock %}

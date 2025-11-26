@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Create Application</h2>
+<form method="POST">
+  <label>Caregiver:</label><br>
+  <select name="caregiver_user_id">{% for c in caregivers %}<option value="{{ c.user_id }}">{{ c.user_id }} - {{ c.name }}</option>{% endfor %}</select><br><br>
+  <label>Job:</label><br>
+  <select name="job_id">{% for j in jobs %}<option value="{{ j.job_id }}">{{ j.job_id }} - {{ j.other_requirements }}</option>{% endfor %}</select><br><br>
+  <button type="submit">Apply</button> &nbsp; <a href="/applications">Cancel</a>
+</form>
+{% endblock %}

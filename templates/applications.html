@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Job Applications</h2>
+<a href="/applications/create">Create application</a>
+<table border="1" cellpadding="6">
+<tr><th>Caregiver</th><th>Job</th><th>Date applied</th><th>Actions</th></tr>
+{% for a in applications %}
+<tr>
+  <td>{{ a.caregiver_name }}</td>
+  <td>{{ a.job_id }} (member {{ a.member_user_id }})</td>
+  <td>{{ a.date_applied }}</td>
+  <td><a href="/applications/delete/{{ a.caregiver_user_id }}/{{ a.job_id }}" onclick="return confirm('Delete?')">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
+{% endblock %}

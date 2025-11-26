@@ -1,0 +1,421 @@
+from flask import Flask, render_template, request, redirect
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+from config import DB_URL
+from models import Base, AppUser
+
+app = Flask(__name__, template_folder="templates")
+
+engine = create_engine(DB_URL)
+Session = sessionmaker(bind=engine)
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/users")
+def users():
+    session = Session()
+
+    # Fetch users + compute role from caregiver/member tables (no schema changes)
+    rows = session.execute(text("""
+        SELECT u.user_id,
+               u.email,
+               u.given_name,
+               u.surname,
+               u.city,
+               CASE
+                 WHEN c.caregiver_user_id IS NOT NULL AND m.member_user_id IS NOT NULL THEN 'Caregiver, Member'
+                 WHEN c.caregiver_user_id IS NOT NULL THEN 'Caregiver'
+                 WHEN m.member_user_id IS NOT NULL THEN 'Family Member'
+                 ELSE 'Unknown'
+               END AS role
+        FROM app_user u
+        LEFT JOIN caregiver c ON c.caregiver_user_id = u.user_id
+        LEFT JOIN member m    ON m.member_user_id    = u.user_id
+        ORDER BY u.user_id
+    """)).fetchall()
+
+    # Convert SQLAlchemy Row objects to plain dicts for the template
+    users = [dict(r._mapping) for r in rows]
+
+    return render_template("users.html", users=users)
+
+@app.route("/users/create", methods=["GET", "POST"])
+def create_user():
+    session = Session()
+    if request.method == "POST":
+        # 1) Insert app_user
+        res = session.execute(text("""
+            INSERT INTO app_user (email, given_name, surname, city, phone_number, profile_description, password)
+            VALUES (:email, :given_name, :surname, :city, :phone_number, :profile_description, :password)
+            RETURNING user_id
+        """), {
+            "email": request.form.get("email"),
+            "given_name": request.form.get("given_name"),
+            "surname": request.form.get("surname"),
+            "city": request.form.get("city"),
+            "phone_number": request.form.get("phone_number"),
+            "profile_description": request.form.get("profile_description"),
+            "password": request.form.get("password")
+        })
+        new_user_id = res.fetchone()[0]
+
+        # 2) If is_member checked -> create member + address
+        if request.form.get("is_member"):
+            session.execute(text("""
+                INSERT INTO member (member_user_id, house_rules, dependent_description)
+                VALUES (:uid, :house_rules, :dependent_description)
+            """), {
+                "uid": new_user_id,
+                "house_rules": request.form.get("house_rules"),
+                "dependent_description": request.form.get("dependent_description")
+            })
+
+            # if address fields provided -> insert address
+            house_number = request.form.get("house_number")
+            street = request.form.get("street")
+            town = request.form.get("town")
+            if house_number or street or town:
+                session.execute(text("""
+                    INSERT INTO address (member_user_id, house_number, street, town)
+                    VALUES (:uid, :house_number, :street, :town)
+                """), {
+                    "uid": new_user_id,
+                    "house_number": house_number,
+                    "street": street,
+                    "town": town
+                })
+
+        session.commit()
+        return redirect("/users")
+
+    # GET
+    return render_template("user_form.html", user=None, member=None, address=None, edit=False)
+
+@app.route("/users/edit/<int:user_id>", methods=["GET", "POST"])
+def edit_user(user_id):
+    session = Session()
+
+    if request.method == "POST":
+        # 1) update base app_user
+        session.execute(text("""
+            UPDATE app_user
+            SET email = :email,
+                given_name = :given_name,
+                surname = :surname,
+                city = :city,
+                phone_number = :phone_number,
+                profile_description = :profile_description,
+                password = :password
+            WHERE user_id = :uid
+        """), {
+            "email": request.form.get("email"),
+            "given_name": request.form.get("given_name"),
+            "surname": request.form.get("surname"),
+            "city": request.form.get("city"),
+            "phone_number": request.form.get("phone_number"),
+            "profile_description": request.form.get("profile_description"),
+            "password": request.form.get("password"),
+            "uid": user_id
+        })
+
+        # Determine intended role from form (checkboxes) OR existing DB rows:
+        want_member = bool(request.form.get("is_member"))
+        want_caregiver = bool(request.form.get("is_caregiver"))
+
+        # If the form didn't include checkboxes (older UI), we can still detect existing rows:
+        # but here we prefer explicit form choices; below we also fetch current rows.
+
+        # 2) handle member (create/update/delete)
+        mem_exists = session.execute(
+            text("SELECT member_user_id FROM member WHERE member_user_id = :uid"), {"uid": user_id}
+        ).fetchone()
+
+        if want_member:
+            if mem_exists:
+                session.execute(text("""
+                    UPDATE member SET house_rules = :hr, dependent_description = :dd
+                    WHERE member_user_id = :uid
+                """), {"hr": request.form.get("house_rules"), "dd": request.form.get("dependent_description"), "uid": user_id})
+            else:
+                session.execute(text("""
+                    INSERT INTO member (member_user_id, house_rules, dependent_description)
+                    VALUES (:uid, :hr, :dd)
+                """), {"uid": user_id, "hr": request.form.get("house_rules"), "dd": request.form.get("dependent_description")})
+
+            # address: create/update if address provided
+            addr = session.execute(text("SELECT address_id FROM address WHERE member_user_id = :uid"), {"uid": user_id}).fetchone()
+            hn = request.form.get("house_number")
+            st = request.form.get("street")
+            tn = request.form.get("town")
+            if addr:
+                session.execute(text("""
+                    UPDATE address SET house_number=:hn, street=:st, town=:tn
+                    WHERE member_user_id = :uid
+                """), {"hn": hn, "st": st, "tn": tn, "uid": user_id})
+            else:
+                if hn or st or tn:
+                    session.execute(text("""
+                        INSERT INTO address (member_user_id, house_number, street, town)
+                        VALUES (:uid, :hn, :st, :tn)
+                    """), {"uid": user_id, "hn": hn, "st": st, "tn": tn})
+        else:
+            # user unchecked member -> delete member and address if exist
+            session.execute(text("DELETE FROM address WHERE member_user_id = :uid"), {"uid": user_id})
+            # delete jobs & applications owned by member (safe cleanup)
+            session.execute(text("DELETE FROM job_application WHERE job_id IN (SELECT job_id FROM job WHERE member_user_id = :uid)"), {"uid": user_id})
+            session.execute(text("DELETE FROM job WHERE member_user_id = :uid"), {"uid": user_id})
+            session.execute(text("DELETE FROM member WHERE member_user_id = :uid"), {"uid": user_id})
+
+        # 3) handle caregiver (create/update/delete)
+        care_exists = session.execute(
+            text("SELECT caregiver_user_id FROM caregiver WHERE caregiver_user_id = :uid"), {"uid": user_id}
+        ).fetchone()
+
+        if want_caregiver:
+            # get caregiver form fields
+            gender = request.form.get("gender")
+            caregiving_type = request.form.get("caregiving_type")
+            hourly_rate = request.form.get("hourly_rate") or None
+            # photo handling omitted here (see notes)
+            if care_exists:
+                session.execute(text("""
+                    UPDATE caregiver
+                    SET gender = :gender,
+                        caregiving_type = :ct,
+                        hourly_rate = :hr
+                    WHERE caregiver_user_id = :uid
+                """), {"gender": gender, "ct": caregiving_type, "hr": hourly_rate, "uid": user_id})
+            else:
+                session.execute(text("""
+                    INSERT INTO caregiver (caregiver_user_id, gender, caregiving_type, hourly_rate)
+                    VALUES (:uid, :gender, :ct, :hr)
+                """), {"uid": user_id, "gender": gender, "ct": caregiving_type, "hr": hourly_rate})
+        else:
+            # Remove caregiver profile if unchecked
+            session.execute(text("DELETE FROM caregiver WHERE caregiver_user_id = :uid"), {"uid": user_id})
+
+        session.commit()
+        return redirect("/users")
+
+    # ----------------- GET -----------------
+    # load rows to prefill the form
+    user_row = session.execute(text("SELECT * FROM app_user WHERE user_id = :uid"), {"uid": user_id}).fetchone()
+    member_row = session.execute(text("SELECT * FROM member WHERE member_user_id = :uid"), {"uid": user_id}).fetchone()
+    address_row = session.execute(text("SELECT * FROM address WHERE member_user_id = :uid"), {"uid": user_id}).fetchone()
+    caregiver_row = session.execute(text("SELECT * FROM caregiver WHERE caregiver_user_id = :uid"), {"uid": user_id}).fetchone()
+
+    # compute role string
+    is_caregiver = bool(caregiver_row)
+    is_member = bool(member_row)
+    if is_caregiver and is_member:
+        role = "Caregiver, Member"
+    elif is_caregiver:
+        role = "Caregiver"
+    elif is_member:
+        role = "Family Member"
+    else:
+        role = "Unknown"
+
+    # convert to simple objects for template
+    class Obj: pass
+
+    u = None
+    if user_row:
+        u = Obj()
+        for k, v in user_row._mapping.items():
+            setattr(u, k, v)
+
+    m = None
+    if member_row:
+        m = Obj()
+        for k, v in member_row._mapping.items():
+            setattr(m, k, v)
+
+    a = None
+    if address_row:
+        a = Obj()
+        for k, v in address_row._mapping.items():
+            setattr(a, k, v)
+
+    caregiver = None
+    if caregiver_row:
+        caregiver = Obj()
+        for k, v in caregiver_row._mapping.items():
+            setattr(caregiver, k, v)
+
+    return render_template("user_form.html",
+                           user=u, member=m, address=a, caregiver=caregiver, role=role, edit=True)
+
+@app.route("/users/delete/<int:user_id>")
+def delete_user(user_id):
+    session = Session()
+
+    # 1. Delete appointments where user is a member
+    session.execute(text("""
+        DELETE FROM appointment
+        WHERE member_user_id = :uid
+    """), {"uid": user_id})
+
+    # 2. Delete appointments where user is a caregiver
+    session.execute(text("""
+        DELETE FROM appointment
+        WHERE caregiver_user_id = :uid
+    """), {"uid": user_id})
+
+    # 3. Delete job applications sent by this user (as caregiver)
+    session.execute(text("""
+        DELETE FROM job_application
+        WHERE caregiver_user_id = :uid
+    """), {"uid": user_id})
+
+    # 4. Delete job applications to jobs owned by this user (as member)
+    session.execute(text("""
+        DELETE FROM job_application
+        WHERE job_id IN (
+            SELECT job_id FROM job WHERE member_user_id = :uid
+        )
+    """), {"uid": user_id})
+
+    # 5. Delete jobs posted by this user (as member)
+    session.execute(text("""
+        DELETE FROM job
+        WHERE member_user_id = :uid
+    """), {"uid": user_id})
+
+    # 6. Delete address (if user is a member)
+    session.execute(text("""
+        DELETE FROM address
+        WHERE member_user_id = :uid
+    """), {"uid": user_id})
+
+    # 7. Delete caregiver profile (if exists)
+    session.execute(text("""
+        DELETE FROM caregiver
+        WHERE caregiver_user_id = :uid
+    """), {"uid": user_id})
+
+    # 8. Delete member profile (if exists)
+    session.execute(text("""
+        DELETE FROM member
+        WHERE member_user_id = :uid
+    """), {"uid": user_id})
+
+    # 9. Finally delete user
+    session.execute(text("""
+        DELETE FROM app_user
+        WHERE user_id = :uid
+    """), {"uid": user_id})
+
+    session.commit()
+    return redirect("/users")
+
+# --- Signup choice (first step) ---
+@app.route("/signup", methods=["GET", "POST"])
+def signup_choice():
+    if request.method == "GET":
+        return render_template("signup_choice.html")
+    role = request.form.get("role")
+    if role == "caregiver":
+        return redirect("/signup/caregiver")
+    return redirect("/signup/member")
+
+@app.route("/signup/caregiver", methods=["GET", "POST"])
+def signup_caregiver():
+    session = Session()
+    if request.method == "POST":
+
+        # TODO: handle file upload (Cloudinary integration will go here)
+        uploaded_photo = request.files.get("photo")
+        # For now we ignore it or just store name
+        photo_filename = uploaded_photo.filename if uploaded_photo else None
+
+        # create user
+        res = session.execute(text("""
+            INSERT INTO app_user (email, given_name, surname, city, phone_number, profile_description, password)
+            VALUES (:email, :given_name, :surname, :city, :phone_number, :profile_description, :password)
+            RETURNING user_id
+        """), {
+            "email": request.form.get("email"),
+            "given_name": request.form.get("given_name"),
+            "surname": request.form.get("surname"),
+            "city": request.form.get("city"),
+            "phone_number": request.form.get("phone_number"),
+            "profile_description": request.form.get("profile_description"),
+            "password": request.form.get("password")
+        })
+        new_user_id = res.fetchone()[0]
+
+        # insert caregiver data
+        session.execute(text("""
+            INSERT INTO caregiver (caregiver_user_id, gender, caregiving_type, hourly_rate,
+                                   photo_filename)
+            VALUES (:uid, :gender, :caregiving_type, :hourly_rate, :photo_filename)
+        """), {
+            "uid": new_user_id,
+            "gender": request.form.get("gender"),
+            "caregiving_type": request.form.get("caregiving_type"),
+            "hourly_rate": request.form.get("hourly_rate"),
+            "photo_filename": photo_filename
+        })
+
+        session.commit()
+        return redirect("/users")
+
+    return render_template("signup_caregiver.html")
+
+@app.route("/signup/member", methods=["GET", "POST"])
+def signup_member():
+    session = Session()
+    if request.method == "POST":
+        # 1) create app_user
+        res = session.execute(text("""
+            INSERT INTO app_user (email, given_name, surname, city, phone_number, profile_description, password)
+            VALUES (:email, :given_name, :surname, :city, :phone_number, :profile_description, :password)
+            RETURNING user_id
+        """), {
+            "email": request.form.get("email"),
+            "given_name": request.form.get("given_name"),
+            "surname": request.form.get("surname"),
+            "city": request.form.get("city"),
+            "phone_number": request.form.get("phone_number"),
+            # we use profile_description for optional family description or extra notes
+            "profile_description": None,
+            "password": request.form.get("password")
+        })
+        new_user_id = res.fetchone()[0]
+
+        # 2) create member record (dependent description + house rules)
+        session.execute(text("""
+            INSERT INTO member (member_user_id, house_rules, dependent_description)
+            VALUES (:uid, :house_rules, :dependent_description)
+        """), {
+            "uid": new_user_id,
+            "house_rules": request.form.get("house_rules"),
+            "dependent_description": request.form.get("dependent_description")
+        })
+
+        # 3) create address if any address data provided
+        house_number = request.form.get("house_number")
+        street = request.form.get("street")
+        town = request.form.get("town")
+        if house_number or street or town:
+            session.execute(text("""
+                INSERT INTO address (member_user_id, house_number, street, town)
+                VALUES (:uid, :house_number, :street, :town)
+            """), {
+                "uid": new_user_id,
+                "house_number": house_number,
+                "street": street,
+                "town": town
+            })
+
+        session.commit()
+        return redirect("/users")
+
+    # GET -> show member signup form
+    return render_template("signup_member.html")
+
+if __name__ == "__main__":
+    app.run(debug=True)

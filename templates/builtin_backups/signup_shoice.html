@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Create an account — choose your role</h2>
+  <form method="POST">
+    <label><input type="radio" name="role" value="member" checked> I am a Family member (seeking a caregiver)</label><br>
+    <label><input type="radio" name="role" value="caregiver"> I am a Caregiver (offer caregiving)</label><br><br>
+    <button type="submit">Next</button>
+  </form>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ 'Create job' if create else 'Edit job' }}</h2>
+<form method="POST">
+  <label>Member (owner):</label><br>
+  <select name="member_user_id">
+    {% for m in members %}
+      <option value="{{ m.user_id }}" {% if job and job.member_user_id==m.user_id %}selected{% endif %}>{{ m.user_id }} - {{ m.given_name }} {{ m.surname }}</option>
+    {% endfor %}
+  </select><br><br>
+
+  <label>Required caregiving type:</label><br><input name="required_caregiving_type" value="{{ job.required_caregiving_type if job else '' }}"><br><br>
+  <label>Other requirements:</label><br><textarea name="other_requirements" rows="4" cols="60">{{ job.other_requirements if job else '' }}</textarea><br><br>
+  <button type="submit">Save</button> &nbsp; <a href="/jobs">Cancel</a>
+</form>
+{% endblock %}

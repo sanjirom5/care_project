@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Create Appointment</h2>
+<form method="POST">
+  <label>Caregiver:</label><br>
+  <select name="caregiver_user_id">{% for c in caregivers %}<option value="{{ c.user_id }}">{{ c.name }}</option>{% endfor %}</select><br><br>
+
+  <label>Member:</label><br>
+  <select name="member_user_id">{% for m in members %}<option value="{{ m.user_id }}">{{ m.name }}</option>{% endfor %}</select><br><br>
+
+  <label>Date:</label><br><input type="date" name="appointment_date"><br><br>
+  <label>Time:</label><br><input type="time" name="appointment_time"><br><br>
+  <label>Work hours:</label><br><input name="work_hours" type="number" step="0.5"><br><br>
+  <label>Status:</label><br><input name="status" value="accepted"><br><br>
+
+  <button type="submit">Create</button> &nbsp; <a href="/appointments">Cancel</a>
+</form>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit Address</h2>
+<form method="POST">
+  <label>House number:</label><br><input name="house_number" value="{{ address.house_number if address else '' }}"><br><br>
+  <label>Street:</label><br><input name="street" value="{{ address.street if address else '' }}"><br><br>
+  <label>Town:</label><br><input name="town" value="{{ address.town if address else '' }}"><br><br>
+  <button type="submit">Save</button> &nbsp; <a href="/addresses">Cancel</a>
+</form>
+{% endblock %}

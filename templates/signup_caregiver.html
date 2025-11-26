@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Sign up — Caregiver</h2>
+
+  <form method="POST" enctype="multipart/form-data">
+
+    <!-- a. First Name -->
+    First name:<br>
+    <input name="given_name" required><br><br>
+
+    <!-- b. Surname -->
+    Last name:<br>
+    <input name="surname" required><br><br>
+
+    <!-- c. Type of caregiving -->
+    Type of caregiving:<br>
+    <select name="caregiving_type" required>
+      <option value="babysitter">Babysitter</option>
+      <option value="elderly">Caregiver for elderly</option>
+      <option value="playmate">Playmate for children</option>
+    </select><br><br>
+
+    <!-- d. Gender -->
+    Gender:<br>
+    <select name="gender" required>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select><br><br>
+
+    <!-- e. Photo -->
+    Photo:<br>
+    <input type="file" name="photo" accept="image/*"><br><br>
+
+    <!-- f. Email -->
+    Email:<br>
+    <input name="email" type="email" required><br><br>
+
+    <!-- g. Phone -->
+    Phone number:<br>
+    <input name="phone_number" required><br><br>
+
+    <!-- h. City -->
+    City:<br>
+    <input name="city" required><br><br>
+
+    <!-- i. Price per hour -->
+    <label for="hourly_rate">Price per hour (KZT):</label><br>
+    <input type="number" name="hourly_rate" id="hourly_rate" step="1" min="0" value="{{ caregiver.hourly_rate if caregiver is defined and caregiver else '' }}"><br><br>
+
+    <!-- j. Biography / Personal Information -->
+    Biography / Personal Information:<br>
+    <textarea name="profile_description" rows="4" cols="50" required></textarea><br><br>
+
+    <!-- k. Password -->
+    Password:<br>
+    <input name="password" type="password" required><br><br>
+
+    <button type="submit">Create Caregiver Account</button>
+
+  </form>
+
+{% endblock %}

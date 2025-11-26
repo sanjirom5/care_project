@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ 'Create member' if create else 'Edit member' }}</h2>
+<form method="POST">
+  <label>Member user id (must exist):</label><br>
+  <input name="member_user_id" value="{{ member.member_user_id if member else '' }}" {% if not create %}readonly{% endif %}><br><br>
+
+  <label>House rules:</label><br><textarea name="house_rules" rows="3" cols="60">{{ member.house_rules if member else '' }}</textarea><br><br>
+
+  <label>Dependent description:</label><br><textarea name="dependent_description" rows="3" cols="60">{{ member.dependent_description if member else '' }}</textarea><br><br>
+
+  <h4>Address (optional)</h4>
+  <label>House number:</label><br><input name="house_number" value="{{ address.house_number if address else '' }}"><br><br>
+  <label>Street:</label><br><input name="street" value="{{ address.street if address else '' }}"><br><br>
+  <label>Town:</label><br><input name="town" value="{{ address.town if address else '' }}"><br><br>
+
+  <button type="submit">Save</button> &nbsp; <a href="/members">Cancel</a>
+</form>
+{% endblock %}

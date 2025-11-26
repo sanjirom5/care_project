@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>{{ 'Create caregiver' if create else 'Edit caregiver' }}</h2>
+
+<form method="POST">
+
+  <!-- USER ID -->
+  <label>User ID (must exist in app_user):</label><br>
+  <input name="caregiver_user_id" 
+         value="{{ caregiver.caregiver_user_id if caregiver else '' }}" 
+         {% if not create %}readonly{% endif %}>
+  <br><br>
+
+  <!-- PHOTO -->
+  <label>Photo filename (or URL):</label><br>
+  <input name="photo" value="{{ caregiver.photo if caregiver else '' }}">
+  <br><br>
+
+  <!-- GENDER -->
+  <label>Gender:</label><br>
+  <select name="gender">
+    <option value="male" {% if caregiver and caregiver.gender=='male' %}selected{% endif %}>Male</option>
+    <option value="female" {% if caregiver and caregiver.gender=='female' %}selected{% endif %}>Female</option>
+  </select>
+  <br><br>
+
+  <!-- TYPE -->
+  <label>Caregiving type:</label><br>
+  <select name="caregiving_type">
+    <option value="babysitter" {% if caregiver and caregiver.caregiving_type=='babysitter' %}selected{% endif %}>Babysitter</option>
+    <option value="elderly" {% if caregiver and caregiver.caregiving_type=='elderly' %}selected{% endif %}>Elderly care</option>
+    <option value="playmate" {% if caregiver and caregiver.caregiving_type=='playmate' %}selected{% endif %}>Playmate</option>
+  </select>
+  <br><br>
+
+  <!-- HOURLY RATE (KZT) -->
+  <label>Price per hour (KZT):</label><br>
+  <input name="hourly_rate" 
+         type="number" 
+         step="1"
+         min="0"
+         value="{{ caregiver.hourly_rate if caregiver else '' }}">
+  <br><br>
+
+  <!-- BUTTONS -->
+  <button type="submit">Save</button>
+  &nbsp;
+  <a href="/caregivers">Cancel</a>
+
+</form>
+
+{% endblock %}
