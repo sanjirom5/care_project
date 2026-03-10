@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Book Appointment{% endblock %}
+{% block content %}
+
+<h2>Book an Appointment</h2>
+
+<form method="POST">
+    <p>
+        <label for="caregiver_user_id">Caregiver:</label>
+        <select id="caregiver_user_id" name="caregiver_user_id">
+            {% for c in caregivers %}
+            <option value="{{ c.user_id }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>
+        <label for="appointment_date">Date:</label>
+        <input id="appointment_date" name="appointment_date" type="date">
+    </p>
+    <p>
+        <label for="appointment_time">Time:</label>
+        <input id="appointment_time" name="appointment_time" type="time">
+    </p>
+    <p>
+        <label for="work_hours">Work Hours:</label>
+        <input id="work_hours" name="work_hours" type="number" step="0.5" min="0.5">
+    </p>
+    <p>
+        <button type="submit">Book</button>
+        <a href="/appointments">Cancel</a>
+    </p>
+</form>
+
+{% endblock %}

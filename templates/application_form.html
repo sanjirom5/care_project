@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Apply for Job{% endblock %}
+{% block content %}
+
+<h2>Apply for a Job</h2>
+
+<form method="POST">
+    <p>
+        <label for="job_id">Select Job:</label>
+        <select id="job_id" name="job_id">
+            {% for j in jobs %}
+            <option value="{{ j.job_id }}" {% if request.args.get('job_id') == j.job_id|string %}selected{% endif %}>
+                #{{ j.job_id }} — {{ j.other_requirements }}
+            </option>
+            {% endfor %}
+        </select>
+    </p>
+    <p>
+        <button type="submit">Apply</button>
+        <a href="/jobs">Cancel</a>
+    </p>
+</form>
+
+{% endblock %}

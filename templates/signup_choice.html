@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block content %}
+
+<h2>Create an Account</h2>
+
+<form method="POST">
+    <p>
+        <label><input type="radio" name="role" value="member" checked> I am a Family Member (seeking a caregiver)</label>
+    </p>
+    <p>
+        <label><input type="radio" name="role" value="caregiver"> I am a Caregiver (offering caregiving)</label>
+    </p>
+    <p><button type="submit">Next</button></p>
+</form>
+
+{% endblock %}

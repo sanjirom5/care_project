@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Caregivers{% endblock %}
+{% block content %}
+
+<h2>Caregivers</h2>
+
+<p>
+    <a href="/caregivers/create">+ Create Caregiver</a> |
+    <a href="/users">Back to Users</a>
+</p>
+
+<table border="1" cellpadding="6">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Gender</th>
+            <th>Type</th>
+            <th>Rate (KZT)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in caregivers %}
+        <tr>
+            <td>{{ c.caregiver_user_id }}</td>
+            <td>{{ c.gender }}</td>
+            <td>{{ c.caregiving_type }}</td>
+            <td>{{ "{:,.0f}".format(c.hourly_rate) }} ₸</td>
+            <td>
+                <a href="/caregivers/edit/{{ c.caregiver_user_id }}">Edit</a> |
+                <a href="/caregivers/delete/{{ c.caregiver_user_id }}"
+                   onclick="return confirm('Delete this caregiver?')">Delete</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5">No caregivers found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<h2>Welcome, {{ session.name }}</h2>
+<p>Role: <strong>{{ session.role }}</strong></p>
+
+{% if session.role in ("member", "both") %}
+<h3>Member</h3>
+<ul>
+    <li><a href="/jobs/create">Post a new job</a></li>
+    <li><a href="/jobs">Browse all jobs</a></li>
+    <li><a href="/appointments/create">Book an appointment</a></li>
+    <li><a href="/appointments">My appointments</a></li>
+    <li><a href="/applications">Applications received</a></li>
+</ul>
+{% endif %}
+
+{% if session.role in ("caregiver", "both") %}
+<h3>Caregiver</h3>
+<ul>
+    <li><a href="/jobs">Browse available jobs</a></li>
+    <li><a href="/applications/create">Apply for a job</a></li>
+    <li><a href="/applications">My applications</a></li>
+    <li><a href="/appointments">My appointments</a></li>
+</ul>
+{% endif %}
+
+{% if session.role == "unknown" %}
+<p>Your account has no member or caregiver profile. Contact an administrator.</p>
+{% endif %}
+
+{% endblock %}

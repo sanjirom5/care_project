@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Jobs{% endblock %}
+{% block content %}
+
+<h2>Jobs</h2>
+
+{% if session.role in ("member", "both") %}
+<p><a href="/jobs/create">+ Post a Job</a></p>
+{% endif %}
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Posted By</th>
+            <th>Type</th>
+            <th>Requirements</th>
+            <th>Date Posted</th>
+            {% if session.role in ("member", "both") %}<th>Actions</th>{% endif %}
+            {% if session.role in ("caregiver", "both") %}<th>Apply</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for j in jobs %}
+        <tr>
+            <td>{{ j.job_id }}</td>
+            <td>{{ j.member_name }}</td>
+            <td>{{ j.required_caregiving_type }}</td>
+            <td>{{ j.other_requirements }}</td>
+            <td>{{ j.date_posted }}</td>
+            {% if session.role in ("member", "both") %}
+            <td>
+                {% if j.member_user_id == session.user_id %}
+                <a href="/jobs/edit/{{ j.job_id }}">Edit</a> |
+                <a href="/jobs/delete/{{ j.job_id }}" onclick="return confirm('Delete this job?')">Delete</a>
+                {% else %}
+                —
+                {% endif %}
+            </td>
+            {% endif %}
+            {% if session.role in ("caregiver", "both") %}
+            <td><a href="/applications/create?job_id={{ j.job_id }}">Apply</a></td>
+            {% endif %}
+        </tr>
+        {% else %}
+        <tr><td colspan="6">No jobs found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

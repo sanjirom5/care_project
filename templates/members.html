@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Members{% endblock %}
+{% block content %}
+
+<h2>Members</h2>
+
+<p>
+    <a href="/members/create">+ Create Member</a> |
+    <a href="/users">Back to Users</a>
+</p>
+
+<table border="1" cellpadding="6">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>City</th>
+            <th>Address</th>
+            <th>Dependent</th>
+            <th>House Rules</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in members %}
+        <tr>
+            <td>{{ m.id }}</td>
+            <td>{{ m.name }}</td>
+            <td>{{ m.email }}</td>
+            <td>{{ m.city }}</td>
+            <td>{{ m.address }}</td>
+            <td>{{ m.dependent }}</td>
+            <td>{{ m.house_rules }}</td>
+            <td>
+                <a href="/members/edit/{{ m.id }}">Edit</a> |
+                <a href="/members/delete/{{ m.id }}"
+                   onclick="return confirm('Delete this member?')">Delete</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="8">No members found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

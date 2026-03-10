@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Sign Up — Family Member{% endblock %}
+{% block content %}
+
+<h2>Sign Up — Family Member</h2>
+
+{% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+
+<form method="POST">
+    <p>
+        <label for="given_name">First Name:</label>
+        <input id="given_name" name="given_name" required value="{{ form.given_name if form else '' }}">
+    </p>
+    <p>
+        <label for="surname">Last Name:</label>
+        <input id="surname" name="surname" required value="{{ form.surname if form else '' }}">
+    </p>
+    <p>
+        <label for="email">Email:</label>
+        <input id="email" name="email" type="email" required value="{{ form.email if form else '' }}">
+    </p>
+    <p>
+        <label for="phone_number">Phone Number:</label>
+        <input id="phone_number" name="phone_number" value="{{ form.phone_number if form else '' }}">
+    </p>
+    <p>
+        <label for="city">City:</label>
+        <input id="city" name="city" required value="{{ form.city if form else '' }}">
+    </p>
+    <p>
+        <label for="password">Password:</label>
+        <input id="password" name="password" type="password" required>
+    </p>
+    <fieldset>
+        <legend>Address (optional)</legend>
+        <p>
+            <label for="house_number">House Number:</label>
+            <input id="house_number" name="house_number" value="{{ form.house_number if form else '' }}">
+        </p>
+        <p>
+            <label for="street">Street:</label>
+            <input id="street" name="street" value="{{ form.street if form else '' }}">
+        </p>
+        <p>
+            <label for="town">Town:</label>
+            <input id="town" name="town" value="{{ form.town if form else '' }}">
+        </p>
+    </fieldset>
+    <p>
+        <label for="dependent_description">Who needs care:</label>
+        <textarea id="dependent_description" name="dependent_description" rows="3" placeholder="e.g. 5-year-old daughter who likes painting">{{ form.dependent_description if form else '' }}</textarea>
+    </p>
+    <p>
+        <label for="house_rules">House Rules:</label>
+        <textarea id="house_rules" name="house_rules" rows="3" placeholder="e.g. No smoking, follow hygiene rules">{{ form.house_rules if form else '' }}</textarea>
+    </p>
+    <p>
+        <button type="submit">Create Account</button>
+        <a href="/signup">Back</a>
+    </p>
+</form>
+
+{% endblock %}

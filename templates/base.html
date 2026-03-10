@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Care Platform{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5; background: #fff; color: #000; margin: 0; }
+        header { background: #f0f0f0; border-bottom: 1px solid #ccc; padding: 10px 20px; }
+        header h1 { font-size: 1.1rem; margin-bottom: 6px; }
+        nav a { color: #00e; text-decoration: none; margin-right: 10px; font-size: 0.875rem; }
+        nav a:hover { text-decoration: underline; }
+        nav span { font-size: 0.8rem; color: #555; margin-right: 6px; }
+        main { max-width: 1000px; margin: 24px auto; padding: 0 20px 40px; }
+        h2 { font-size: 1.2rem; margin-bottom: 14px; }
+        h3 { font-size: 1rem; margin: 14px 0 8px; }
+        p { margin-bottom: 8px; }
+        a { color: #00e; }
+        a:hover { text-decoration: underline; }
+        ul { margin: 8px 0 8px 20px; }
+        li { margin-bottom: 4px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; font-size: 0.875rem; }
+        th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; vertical-align: middle; }
+        thead th { background: #f0f0f0; font-weight: bold; }
+        tbody tr:hover { background: #f9f9f9; }
+        form p { margin-bottom: 10px; }
+        label { display: block; font-size: 0.875rem; font-weight: bold; margin-bottom: 3px; }
+        input[type="text"], input[type="email"], input[type="password"],
+        input[type="number"], input[type="date"], input[type="time"],
+        select, textarea {
+            width: 100%; max-width: 400px; padding: 4px 6px;
+            border: 1px solid #999; font-family: Arial, sans-serif;
+            font-size: 0.875rem; color: #000; background: #fff;
+        }
+        textarea { resize: vertical; min-height: 70px; max-width: 440px; }
+        input[type="checkbox"] { width: auto; margin-right: 5px; }
+        input[readonly] { background: #f0f0f0; }
+        fieldset { border: 1px solid #ccc; padding: 10px 14px; margin: 10px 0; max-width: 460px; }
+        legend { font-size: 0.875rem; font-weight: bold; padding: 0 4px; }
+        button[type="submit"] { background: #f0f0f0; border: 1px solid #999; padding: 5px 16px; font-family: Arial, sans-serif; font-size: 0.875rem; cursor: pointer; }
+        button[type="submit"]:hover { background: #e0e0e0; }
+        .error-box { background: #fff0f0; border: 1px solid #f99; padding: 6px 10px; max-width: 440px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Care Platform</h1>
+    <nav>
+        {% if session.user_id %}
+            <a href="/dashboard">Dashboard</a>
+            <a href="/jobs">Jobs</a>
+            <a href="/applications">Applications</a>
+            <a href="/appointments">Appointments</a>
+            <span>{{ session.name }} ({{ session.role }})</span>
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/signup">Sign up</a>
+        {% endif %}
+    </nav>
+</header>
+<main>
+    {% block content %}{% endblock %}
+</main>
+</body>
+</html>

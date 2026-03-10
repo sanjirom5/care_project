@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<h2>Welcome to the Care Platform</h2>
+
+<p>Use the navigation above to manage the database.</p>
+
+<ul>
+    <li><a href="/users">Users</a> — all registered users</li>
+    <li><a href="/caregivers">Caregivers</a> — caregiver profiles</li>
+    <li><a href="/members">Members</a> — member profiles</li>
+    <li><a href="/jobs">Jobs</a> — job postings</li>
+    <li><a href="/applications">Applications</a> — job applications</li>
+    <li><a href="/appointments">Appointments</a> — scheduled appointments</li>
+    <li><a href="/signup">Sign up</a> — register a new user</li>
+</ul>
+
+{% endblock %}

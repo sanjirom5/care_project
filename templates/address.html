@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Addresses{% endblock %}
+{% block content %}
+
+<h2>Addresses</h2>
+
+<table border="1" cellpadding="6">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Member ID</th>
+            <th>House</th>
+            <th>Street</th>
+            <th>Town</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in addresses %}
+        <tr>
+            <td>{{ a.address_id }}</td>
+            <td>{{ a.member_user_id }}</td>
+            <td>{{ a.house_number }}</td>
+            <td>{{ a.street }}</td>
+            <td>{{ a.town }}</td>
+            <td>
+                <a href="/addresses/edit/{{ a.address_id }}">Edit</a> |
+                <a href="/addresses/delete/{{ a.address_id }}" onclick="return confirm('Delete this address?')">Delete</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6">No addresses found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

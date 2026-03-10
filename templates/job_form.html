@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Create Job' if create else 'Edit Job' }}{% endblock %}
+{% block content %}
+
+<h2>{{ 'Post a Job' if create else 'Edit Job' }}</h2>
+
+<form method="POST">
+    <p>
+        <label for="required_caregiving_type">Required Caregiving Type:</label>
+        <select id="required_caregiving_type" name="required_caregiving_type">
+            <option value="babysitter" {% if job and job.required_caregiving_type == 'babysitter' %}selected{% endif %}>Babysitter</option>
+            <option value="elderly"    {% if job and job.required_caregiving_type == 'elderly'    %}selected{% endif %}>Elderly Care</option>
+            <option value="playmate"   {% if job and job.required_caregiving_type == 'playmate'   %}selected{% endif %}>Playmate</option>
+        </select>
+    </p>
+    <p>
+        <label for="other_requirements">Other Requirements:</label>
+        <textarea id="other_requirements" name="other_requirements" rows="4">{{ job.other_requirements if job else '' }}</textarea>
+    </p>
+    <p>
+        <button type="submit">Save</button>
+        <a href="/jobs">Cancel</a>
+    </p>
+</form>
+
+{% endblock %}

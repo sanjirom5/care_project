@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Applications{% endblock %}
+{% block content %}
+
+<h2>
+    {% if session.role in ("caregiver", "both") %}My Applications
+    {% else %}Applications Received{% endif %}
+</h2>
+
+{% if session.role in ("caregiver", "both") %}
+<p><a href="/applications/create">+ Apply for a Job</a></p>
+{% endif %}
+
+<table>
+    <thead>
+        <tr>
+            <th>Job ID</th>
+            <th>Type Required</th>
+            <th>Caregiver</th>
+            <th>Date Applied</th>
+            {% if session.role in ("caregiver", "both") %}<th>Actions</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in applications %}
+        <tr>
+            <td>{{ a.job_id }}</td>
+            <td>{{ a.required_caregiving_type }}</td>
+            <td>{{ a.caregiver_name }}</td>
+            <td>{{ a.date_applied }}</td>
+            {% if session.role in ("caregiver", "both") %}
+            <td>
+                <a href="/applications/delete/{{ a.caregiver_user_id }}/{{ a.job_id }}"
+                   onclick="return confirm('Withdraw this application?')">Withdraw</a>
+            </td>
+            {% endif %}
+        </tr>
+        {% else %}
+        <tr><td colspan="5">No applications found.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

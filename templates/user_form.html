@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit User" if edit else "Create User" }}{% endblock %}
+{% block content %}
+
+<h2>{{ "Edit User" if edit else "Create User" }}</h2>
+
+<form method="POST">
+    <p>
+        <label for="email">Email:</label><br>
+        <input id="email" name="email" type="email" required
+               value="{{ user.email if user else '' }}">
+    </p>
+    <p>
+        <label for="given_name">First Name:</label><br>
+        <input id="given_name" name="given_name" required
+               value="{{ user.given_name if user else '' }}">
+    </p>
+    <p>
+        <label for="surname">Last Name:</label><br>
+        <input id="surname" name="surname" required
+               value="{{ user.surname if user else '' }}">
+    </p>
+    <p>
+        <label for="city">City:</label><br>
+        <input id="city" name="city"
+               value="{{ user.city if user else '' }}">
+    </p>
+    <p>
+        <label for="phone_number">Phone:</label><br>
+        <input id="phone_number" name="phone_number"
+               value="{{ user.phone_number if user else '' }}">
+    </p>
+    <p>
+        <label for="profile_description">Biography / Personal Information:</label><br>
+        <textarea id="profile_description" name="profile_description" rows="4" cols="60">{{ user.profile_description if user else '' }}</textarea>
+    </p>
+    <p>
+        <label for="password">Password:</label><br>
+        <input id="password" name="password" type="password">
+    </p>
+
+    {% if edit %}
+    <p><strong>Current Role:</strong> {{ role }}</p>
+    {% endif %}
+
+    <!-- MEMBER SECTION -->
+    <p>
+        <label>
+            <input type="checkbox" name="is_member" value="1"
+                   {% if member %}checked{% endif %}>
+            This user is a Member
+        </label>
+    </p>
+
+    <fieldset>
+        <legend>Member Information</legend>
+        <p>
+            <label for="house_rules">House Rules:</label><br>
+            <textarea id="house_rules" name="house_rules" rows="3" cols="60">{{ member.house_rules if member else '' }}</textarea>
+        </p>
+        <p>
+            <label for="dependent_description">Dependent Description (who needs care):</label><br>
+            <textarea id="dependent_description" name="dependent_description" rows="3" cols="60">{{ member.dependent_description if member else '' }}</textarea>
+        </p>
+        <fieldset>
+            <legend>Address (optional)</legend>
+            <p>
+                <label for="house_number">House Number:</label><br>
+                <input id="house_number" name="house_number"
+                       value="{{ address.house_number if address else '' }}">
+            </p>
+            <p>
+                <label for="street">Street:</label><br>
+                <input id="street" name="street"
+                       value="{{ address.street if address else '' }}">
+            </p>
+            <p>
+                <label for="town">Town:</label><br>
+                <input id="town" name="town"
+                       value="{{ address.town if address else '' }}">
+            </p>
+        </fieldset>
+    </fieldset>
+
+    <!-- CAREGIVER SECTION -->
+    <p>
+        <label>
+            <input type="checkbox" name="is_caregiver" value="1"
+                   {% if caregiver is defined and caregiver %}checked{% endif %}>
+            This user is a Caregiver
+        </label>
+    </p>
+
+    <fieldset>
+        <legend>Caregiver Information</legend>
+        <p>
+            <label for="caregiving_type">Type of Caregiving:</label><br>
+            <select id="caregiving_type" name="caregiving_type">
+                <option value="">--</option>
+                <option value="babysitter" {% if caregiver is defined and caregiver and caregiver.caregiving_type == 'babysitter' %}selected{% endif %}>Babysitter</option>
+                <option value="elderly"    {% if caregiver is defined and caregiver and caregiver.caregiving_type == 'elderly'    %}selected{% endif %}>Caregiver for Elderly</option>
+                <option value="playmate"   {% if caregiver is defined and caregiver and caregiver.caregiving_type == 'playmate'   %}selected{% endif %}>Playmate for Children</option>
+            </select>
+        </p>
+        <p>
+            <label for="gender">Gender:</label><br>
+            <select id="gender" name="gender">
+                <option value="">--</option>
+                <option value="male"   {% if caregiver is defined and caregiver and caregiver.gender == 'male'   %}selected{% endif %}>Male</option>
+                <option value="female" {% if caregiver is defined and caregiver and caregiver.gender == 'female' %}selected{% endif %}>Female</option>
+                <option value="other"  {% if caregiver is defined and caregiver and caregiver.gender == 'other'  %}selected{% endif %}>Other</option>
+            </select>
+        </p>
+        <p>
+            <label for="hourly_rate">Price per Hour (KZT):</label><br>
+            <input id="hourly_rate" name="hourly_rate" type="number" step="100" min="0"
+                   value="{{ caregiver.hourly_rate if caregiver is defined and caregiver else '' }}">
+        </p>
+    </fieldset>
+
+    <p>
+        <button type="submit">{{ "Update" if edit else "Create" }}</button>
+        <a href="/users">Cancel</a>
+    </p>
+</form>
+
+{% endblock %}

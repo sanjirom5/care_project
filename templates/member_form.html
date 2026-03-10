@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Create Member' if create else 'Edit Member' }}{% endblock %}
+{% block content %}
+
+<h2>{{ 'Create Member' if create else 'Edit Member' }}</h2>
+
+<form method="POST">
+    <p>
+        <label for="member_user_id">Member User ID (must exist in app_user):</label><br>
+        <input id="member_user_id" name="member_user_id"
+               value="{{ member.member_user_id if member else '' }}"
+               {% if not create %}readonly{% endif %}>
+    </p>
+    <p>
+        <label for="house_rules">House Rules:</label><br>
+        <textarea id="house_rules" name="house_rules" rows="3" cols="60">{{ member.house_rules if member else '' }}</textarea>
+    </p>
+    <p>
+        <label for="dependent_description">Dependent Description:</label><br>
+        <textarea id="dependent_description" name="dependent_description" rows="3" cols="60">{{ member.dependent_description if member else '' }}</textarea>
+    </p>
+
+    <h4>Address (optional)</h4>
+    <p>
+        <label for="house_number">House Number:</label><br>
+        <input id="house_number" name="house_number" value="{{ address.house_number if address else '' }}">
+    </p>
+    <p>
+        <label for="street">Street:</label><br>
+        <input id="street" name="street" value="{{ address.street if address else '' }}">
+    </p>
+    <p>
+        <label for="town">Town:</label><br>
+        <input id="town" name="town" value="{{ address.town if address else '' }}">
+    </p>
+    <p>
+        <button type="submit">Save</button>
+        <a href="/members">Cancel</a>
+    </p>
+</form>
+
+{% endblock %}
